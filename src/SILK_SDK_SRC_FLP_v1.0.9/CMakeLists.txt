@@ -6,7 +6,7 @@ include_directories(
     src
 )
 
-set(SILK_SOURCES
+set(silk_SOURCES
     src/SKP_Silk_A2NLSF.c
     src/SKP_Silk_allpass_int.c
     src/SKP_Silk_allpass_int_FLP.c
@@ -133,7 +133,7 @@ set(SILK_SOURCES
     src/SKP_Silk_wrappers_FLP.c
 )
 
-set(SILK_PRIVATE_HEADERS
+set(silk_private_HEADERS
     src/SKP_Silk_common_pitch_est_defines.h
     src/SKP_Silk_define.h
     src/SKP_Silk_Inlines.h
@@ -160,19 +160,21 @@ set(SILK_PRIVATE_HEADERS
     src/SKP_Silk_tuning_parameters.h
 )
 
-set(SILK_PUBLIC_HEADERS
+set(silk_public_HEADERS
     interface/SKP_Silk_control.h
     interface/SKP_Silk_errors.h
     interface/SKP_Silk_SDK_API.h
     interface/SKP_Silk_typedef.h
 )
 
-set(ALL_SOURCES
-    ${SILK_SOURCES}
-    ${SILK_PRIVATE_HEADERS}
-    ${SILK_PUBLIC_HEADERS}
+set(silk_SOURCES
+    ${silk_SOURCES}
+    ${silk_private_HEADERS}
+    ${silk_public_HEADERS}
 )
 
-add_compile_options(-Wno-shift-negative-value)
+if (NOT WIN32 AND NOT APPLE)
+    add_compile_options(-Wall -fPIC)
+endif()
 
-add_library(silk STATIC ${ALL_SOURCES})
+add_library(${PROJECT_NAME} STATIC ${silk_SOURCES})

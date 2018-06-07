@@ -6,7 +6,7 @@ include_directories(
     src
 )
 
-set(SILK_SOURCES
+set(silk_c_SOURCES
     src/SKP_Silk_A2NLSF.c
     src/SKP_Silk_ana_filt_bank_1.c
     src/SKP_Silk_apply_sine_window.c
@@ -117,6 +117,9 @@ set(SILK_SOURCES
     src/SKP_Silk_VAD.c
     src/SKP_Silk_VQ_nearest_neighbor_FIX.c
     src/SKP_Silk_warped_autocorrelation_FIX.c
+)
+
+set(silk_arm_SOURCES
     src/SKP_Silk_A2NLSF_arm.S
     src/SKP_Silk_allpass_int_arm.S
     src/SKP_Silk_ana_filt_bank_1_arm.S
@@ -142,7 +145,7 @@ set(SILK_SOURCES
     src/SKP_Silk_warped_autocorrelation_FIX_arm.S
 )
 
-set(SILK_PRIVATE_HEADERS
+set(silk_private_HEADERS
     src/SKP_Silk_AsmHelper.h
     src/SKP_Silk_AsmPreproc.h
     src/SKP_Silk_common_pitch_est_defines.h
@@ -169,20 +172,35 @@ set(SILK_PRIVATE_HEADERS
     src/SKP_Silk_tuning_parameters.h
 )
 
-set(SILK_PUBLIC_HEADERS
+set(silk_public_HEADERS
     interface/SKP_Silk_control.h
     interface/SKP_Silk_errors.h
     interface/SKP_Silk_SDK_API.h
     interface/SKP_Silk_typedef.h
 )
 
-set(ALL_SOURCES
-    ${SILK_SOURCES}
-    ${SILK_PRIVATE_HEADERS}
-    ${SILK_PUBLIC_HEADERS}
+set(silk_SOURCES
+    ${silk_c_SOURCES}
+    ${silk_private_HEADERS}
+    ${silk_public_HEADERS}
 )
 
-enable_language(ASM)
-add_compile_options(-Wno-shift-negative-value)
+if (USE_ARM_ASSEMBLY)
+    set(silk_SOURCES
+        ${silk_SOURCES}
+        ${silk_arm_SOURCES}
+    )
+    enable_language(ASM)
+else()
+    add_definitions(-DNO_ASM)
+endif()
 
-add_library(silk STATIC ${ALL_SOURCES})
+if (NOT WIN32 AND NOT APPLE)
+    add_compile_options(-Wall -fPIC)
+endif()
+
+if (NOT WIN32)
+    add_compile_options(-Wno-shift-negative-value)
+endif()
+
+add_library(${PROJECT_NAME} STATIC ${silk_SOURCES})
